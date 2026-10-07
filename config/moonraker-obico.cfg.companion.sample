@@ -1,0 +1,45 @@
+# Companion config for running moonraker-obico on a LAN Docker host
+# while Moonraker / the webcam stay on the printer (e.g. OpenCentauri COSMOS).
+#
+# 1. Copy to moonraker-obico.cfg and replace PRINTER_IP with your printer's LAN IP
+# 2. Link with Obico (see run_as_container.md) — do not set auth_token yourself
+# 3. Adjust webcam URLs if your COSMOS camera uses a different port/path
+
+[server]
+url = https://app.obico.io
+# auth_token: <set by the link command>
+# sentry_opt: out or in
+
+[moonraker]
+host = PRINTER_IP
+# Current OpenCentauri COSMOS serves Moonraker (+ Mainsail) on port 80.
+# Older/stock Klipper installs typically use 7125.
+port = 80
+# api_key = <grab one or set trusted clients in moonraker>
+
+[webcam]
+disable_video_streaming = False
+
+# Required for companion mode: Moonraker often advertises 127.0.0.1 camera URLs,
+# which are unreachable from a remote Docker host. Point these at the printer IP.
+# Current COSMOS webcam path (older setups often use :8080/?action=...):
+snapshot_url = http://PRINTER_IP/webcam/?action=snapshot
+stream_url = http://PRINTER_IP/webcam/?action=stream
+
+# Lower target_fps if ffmpeg is using too much CPU on the Docker host.
+# Capped at 25 for Pro users (including self-hosted) and 5 for Free users
+# target_fps = 15
+# flip_h = False
+# flip_v = False
+# rotate_90 = False
+# aspect_ratio_169 = False
+
+[logging]
+path = /opt/printer_data/logs/moonraker-obico.log
+level = INFO
+
+[tunnel]
+# Tunnel the printer's web UI (Mainsail/Fluidd) through Obico
+dest_host = PRINTER_IP
+dest_port = 80
+dest_is_ssl = False

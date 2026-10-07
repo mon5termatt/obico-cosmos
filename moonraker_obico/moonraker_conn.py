@@ -109,10 +109,16 @@ class MoonrakerConn:
                 timeout=timeout,
         )
 
-        if raise_for_status:
+        if raise_for_status and resp.status_code >= 400:
             resp.raise_for_status()
 
-        return resp.json().get('result')
+        try:
+            return resp.json().get('result')
+        except ValueError:
+            # COSMOS / some Moonraker setups serve a SPA catch-all on unknown
+            # API routes (e.g. missing update_manager), returning HTML with 200.
+            _logger.warning('Non-JSON response from Moonraker GET %s (status %s)', mr_method, resp.status_code)
+            return None
 
     def api_post(self, mr_method, timeout=None, multipart_filename=None, multipart_fileobj=None, **post_params):
         url = f'{self.app_config.moonraker.http_address()}/{mr_method.replace(".", "/")}'

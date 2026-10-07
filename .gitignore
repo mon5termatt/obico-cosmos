@@ -11,3 +11,7 @@ test_cfgs
 venv
 core
 core.*
+
+# Companion Docker local state (auth_token lives in the cfg)
+config/moonraker-obico.cfg
+logs/
